@@ -511,9 +511,126 @@
     opacity: 0.55;
     letter-spacing: 0.05em;
   }
+
+  /* ---------- BACKGROUND FLORAL ANIMATION ---------- */
+  .petal-field{
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .petal{
+    position: absolute;
+    top: -40px;
+    left: var(--x);
+    width: var(--size);
+    height: var(--size);
+    opacity: 0;
+    animation:
+      petal-fall var(--fall-dur) linear var(--delay) infinite,
+      petal-sway var(--sway-dur) ease-in-out var(--delay) infinite;
+  }
+  .petal svg{ width:100%; height:100%; display:block; }
+  @keyframes petal-fall{
+    0%{ transform: translateY(-5vh) rotate(0deg); opacity: 0; }
+    6%{ opacity: var(--max-opacity); }
+    92%{ opacity: var(--max-opacity); }
+    100%{ transform: translateY(105vh) rotate(360deg); opacity: 0; }
+  }
+  @keyframes petal-sway{
+    0%,100%{ margin-left: -22px; }
+    50%{ margin-left: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .petal-field{ display:none; }
+  }
+
+  /* ---------- MUSIC TOGGLE ---------- */
+  .music-toggle{
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    z-index: 50;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--maroon);
+    border: 1px solid rgba(217,180,94,0.55);
+    box-shadow: 0 4px 18px rgba(58,44,30,0.28);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    color: var(--gold-light);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .music-toggle:hover{ transform: translateY(-2px); background: var(--maroon-deep); }
+  .music-toggle:focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
+  .music-toggle svg{ width: 22px; height: 22px; }
+  .music-toggle .icon-pause{ display:none; }
+  .music-toggle.playing .icon-play{ display:none; }
+  .music-toggle.playing .icon-pause{ display:block; }
+
+  .music-toggle .ring{
+    position:absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--gold-light);
+    opacity: 0;
+  }
+  .music-toggle.playing .ring{
+    animation: music-pulse 2.2s ease-out infinite;
+  }
+  @keyframes music-pulse{
+    0%{ opacity: 0.55; transform: scale(0.9); }
+    100%{ opacity: 0; transform: scale(1.35); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .music-toggle.playing .ring{ animation: none; }
+  }
+
+  .music-hint{
+    position: fixed;
+    bottom: 30px;
+    right: 84px;
+    z-index: 50;
+    background: var(--maroon);
+    color: var(--cream);
+    font-family: 'Playfair Display', serif;
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    padding: 8px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events:none;
+  }
+  .music-hint.show{ opacity: 0.95; transform: translateX(0); }
+  @media (max-width: 480px){
+    .music-hint{ display:none; }
+  }
 </style>
 </head>
 <body>
+
+<!-- BACKGROUND FLORAL ANIMATION (decorative, sits behind all content) -->
+<div class="petal-field" id="petalField" aria-hidden="true"></div>
+
+<!-- BACKGROUND MUSIC -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="wedding-song.mp3" type="audio/mpeg">
+</audio>
+<div class="music-hint" id="musicHint">Tap to play our song ♪</div>
+<button class="music-toggle" id="musicToggle" type="button" aria-label="Play background music" aria-pressed="false">
+  <span class="ring"></span>
+  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+  <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+</button>
 
 <!-- HERO -->
 <section class="hero">
@@ -798,6 +915,87 @@
     const waLink = 'https://wa.me/' + yasithaWhatsApp + '?text=' + encodeURIComponent(waText);
     document.getElementById('whatsappBtn').href = waLink;
   });
+
+  // ---------- Background floral animation ----------
+  (function(){
+    const field = document.getElementById('petalField');
+    if(!field) return;
+    // Reduced-motion users get no generated petals (CSS also hides the field).
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const colors = ['#B8892E', '#C24568', '#7C1D3E', '#1E4A38', '#D9B45E'];
+    const PETAL_COUNT = window.innerWidth < 640 ? 10 : 16;
+
+    function makePetal(){
+      const el = document.createElement('div');
+      el.className = 'petal';
+      const size = 10 + Math.random() * 12;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      el.style.setProperty('--x', Math.random() * 100 + 'vw');
+      el.style.setProperty('--size', size + 'px');
+      el.style.setProperty('--delay', (Math.random() * -25) + 's');
+      el.style.setProperty('--fall-dur', (14 + Math.random() * 12) + 's');
+      el.style.setProperty('--sway-dur', (3.5 + Math.random() * 3) + 's');
+      el.style.setProperty('--max-opacity', (0.35 + Math.random() * 0.35).toFixed(2));
+      el.innerHTML = '<svg viewBox="0 0 32 32"><path d="M16 2C10 8 6 12 6 18a10 10 0 0 0 20 0c0-6-4-10-10-16Z" fill="' + color + '"/></svg>';
+      field.appendChild(el);
+    }
+    for(let i = 0; i < PETAL_COUNT; i++) makePetal();
+  })();
+
+  // ---------- Background wedding music ----------
+  (function(){
+    const audio = document.getElementById('bgMusic');
+    const toggle = document.getElementById('musicToggle');
+    const hint = document.getElementById('musicHint');
+    if(!audio || !toggle) return;
+
+    audio.volume = 0.55;
+    let userPaused = false;
+
+    function setPlayingUI(isPlaying){
+      toggle.classList.toggle('playing', isPlaying);
+      toggle.setAttribute('aria-pressed', String(isPlaying));
+      toggle.setAttribute('aria-label', isPlaying ? 'Pause background music' : 'Play background music');
+    }
+
+    function tryAutoplay(){
+      const p = audio.play();
+      if(p && typeof p.then === 'function'){
+        p.then(() => setPlayingUI(true)).catch(() => {
+          // Autoplay blocked by the browser — show a gentle hint and wait for a tap.
+          setPlayingUI(false);
+          hint.classList.add('show');
+        });
+      }
+    }
+
+    toggle.addEventListener('click', () => {
+      hint.classList.remove('show');
+      if(audio.paused){
+        userPaused = false;
+        audio.play().then(() => setPlayingUI(true)).catch(() => setPlayingUI(false));
+      } else {
+        userPaused = true;
+        audio.pause();
+        setPlayingUI(false);
+      }
+    });
+
+    // Some mobile browsers only allow playback after the first user gesture
+    // anywhere on the page — this catches that without needing the button itself.
+    function unlockOnFirstGesture(){
+      if(!userPaused && audio.paused){
+        audio.play().then(() => setPlayingUI(true)).catch(() => {});
+      }
+      window.removeEventListener('touchstart', unlockOnFirstGesture);
+      window.removeEventListener('click', unlockOnFirstGesture);
+    }
+    window.addEventListener('touchstart', unlockOnFirstGesture, { once: true });
+    window.addEventListener('click', unlockOnFirstGesture, { once: true });
+
+    window.addEventListener('load', tryAutoplay);
+  })();
 </script>
 
 </body>
