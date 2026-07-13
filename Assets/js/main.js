@@ -1,4 +1,4 @@
-  // Countdown
+// Countdown
   const weddingDate = new Date('2026-08-30T08:00:00+05:30').getTime();
   function updateCountdown(){
     const now = Date.now();
@@ -146,14 +146,20 @@
     // Reduced-motion users get no generated elements (CSS also hides the field).
     if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const isSmall = window.innerWidth < 640;
+    const w = window.innerWidth;
     const petalColors = ['#B8892E', '#C24568', '#7C1D3E', '#1E4A38', '#D9B45E'];
     const heartColors = ['#C24568', '#7C1D3E', '#D9B45E'];
     const wingColors = ['#B8892E', '#C24568', '#D9B45E', '#7C1D3E'];
 
-    const PETAL_COUNT = isSmall ? 8 : 14;
-    const HEART_COUNT = isSmall ? 6 : 10;
-    const BUTTERFLY_COUNT = isSmall ? 3 : 5;
+    function densityFor(mobile, tablet, desktop, wide){
+      if(w < 640) return mobile;
+      if(w < 1024) return tablet;
+      if(w < 1600) return desktop;
+      return wide;
+    }
+    const PETAL_COUNT = densityFor(8, 14, 20, 26);
+    const HEART_COUNT = densityFor(6, 10, 15, 20);
+    const BUTTERFLY_COUNT = densityFor(3, 5, 7, 9);
 
     function makePetal(){
       const el = document.createElement('div');
