@@ -1,4 +1,4 @@
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@500;600;700&family=Mrs+Saint+Delafield&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Playfair+Display:wght@500;600;700&family=Mrs+Saint+Delafield&display=swap');
 
   :root{
     --cream: #FBF5E8;
@@ -863,3 +863,22 @@
     transition: opacity 0.4s ease;
   }
 
+  /* ---------- THEMED CURSOR (mouse/trackpad only — untouched on touch devices) ---------- */
+  @media (hover: hover) and (pointer: fine){
+    body{
+      cursor:
+        url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'><path d='M13 22S3 15.6 3 9.4C3 6 5.6 3.5 8.7 3.5c1.9 0 3.7 1 4.6 2.7 1-1.7 2.7-2.7 4.6-2.7 3.1 0 5.7 2.5 5.7 5.9 0 6.2-10 12.6-10 12.6Z' fill='%23FBF5E8' stroke='%23B8892E' stroke-width='1.6' stroke-linejoin='round'/></svg>") 13 13,
+        auto;
+    }
+
+    a, button, select, label, .wax-seal, .music-toggle, [role="button"], [onclick]{
+      cursor:
+        url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 26 26'><path d='M13 22S3 15.6 3 9.4C3 6 5.6 3.5 8.7 3.5c1.9 0 3.7 1 4.6 2.7 1-1.7 2.7-2.7 4.6-2.7 3.1 0 5.7 2.5 5.7 5.9 0 6.2-10 12.6-10 12.6Z' fill='%23C24568' stroke='%237C1D3E' stroke-width='1.2' stroke-linejoin='round'/></svg>") 14 14,
+        pointer;
+    }
+
+    /* Text fields keep the standard text-caret cursor for usability */
+    input[type="text"], input[type="tel"], input[type="email"], textarea{
+      cursor: text;
+    }
+  }
